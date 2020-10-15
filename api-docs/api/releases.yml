@@ -1,0 +1,144 @@
+---
+title: "Releases"
+endpoints:
+  - endpoint:
+      action: GET /apps/:app/releases
+      text: List releases for an app
+      params:
+        - name: app
+          text: the app name
+          required: true
+      response:
+        json: |
+          HTTP/1.1 200 OK
+          [
+          \t{
+          \t\t"name": "v1",
+          \t\t"descr": "Add-on add example:addon",
+          \t\t"user": "releasing-user@example.org",
+          \t\t"commit": "0f0f0f0",
+          \t\t"env": { "FOO": "bar" },
+          \t\t"addons": [ "example:addon" ],
+          \t\t"pstable": { "web": "bin/web start" },
+          \t\t"created_at": "2011/01/01 00:00:00 -0700"
+          \t}
+          ]
+        xml: |
+          HTTP/1.1 200 OK
+          <?xml version="1.0" encoding="UTF-8"?>
+          <releases>
+          \t<release>
+          \t\t<name>v1</name>
+          \t\t<description>Add-on add example:addon</description>
+          \t\t<created_at>2011-01-01T00:00:00-07:00</created_at>
+          \t\t<commit>0f0f0f0</commit>
+          \t\t<user>releasing-user@example.org</user>
+          \t\t<env>
+          \t\t\t<FOO>bar</FOO>
+          \t\t</env>
+          \t\t<addons>
+          \t\t\t<addon>example:addon</addon>
+          \t\t</addons>
+          \t\t<pstable>
+          \t\t\t<ps name="web">bin/web start</web>
+          \t\t</pstable>
+          \t</release>
+          </releases>
+  - endpoint:
+      action: GET /apps/:app/releases/current
+      text: Get info for the current release
+      params:
+        - name: app
+          text: the app name
+          required: true
+      response:
+        json: |
+          HTTP/1.1 200 OK
+          {
+          \t"name": "v1",
+          \t"descr": "Add-on add example:addon",
+          \t"user": "releasing-user@example.org",
+          \t"commit": "0f0f0f0",
+          \t"env": { "FOO": "bar" },
+          \t"addons": [ "example:addon" ],
+          \t"pstable": { "web": "bin/web start" },
+          \t"created_at": "2011/01/01 00:00:00 -0700"
+          }
+        xml: |
+          HTTP/1.1 200 OK
+          <?xml version="1.0" encoding="UTF-8"?>
+          <release>
+          \t<name>v1</name>
+          \t<description>Add-on add example:addon</description>
+          \t<created_at>2011-01-01T00:00:00-07:00</created_at>
+          \t<commit>0f0f0f0</commit>
+          \t<user>releasing-user@example.org</user>
+          \t<env>
+          \t\t<FOO>bar</FOO>
+          \t</env>
+          \t<addons>
+          \t\t<addon>example:addon</addon>
+          \t</addons>
+          \t<pstable>
+          \t\t<ps name="web">bin/web start</web>
+          \t</pstable>
+          </release>
+  - endpoint:
+      action: GET /apps/:app/releases/:release
+      text: Get info for a release
+      params:
+        - name: app
+          text: the app name
+          required: true
+        - name: release
+          text: the release name
+          required: true
+      response:
+        json: |
+          HTTP/1.1 200 OK
+          {
+          \t"name": "v1",
+          \t"descr": "Add-on add example:addon",
+          \t"user": "releasing-user@example.org",
+          \t"commit": "0f0f0f0",
+          \t"env": { "FOO": "bar" },
+          \t"addons": [ "example:addon" ],
+          \t"pstable": { "web": "bin/web start" },
+          \t"created_at": "2011/01/01 00:00:00 -0700"
+          }
+        xml: |
+          HTTP/1.1 200 OK
+          <?xml version="1.0" encoding="UTF-8"?>
+          <release>
+          \t<name>v1</name>
+          \t<description>Add-on add example:addon</description>
+          \t<created_at>2011-01-01T00:00:00-07:00</created_at>
+          \t<commit>0f0f0f0</commit>
+          \t<user>releasing-user@example.org</user>
+          \t<env>
+          \t\t<FOO>bar</FOO>
+          \t</env>
+          \t<addons>
+          \t\t<addon>example:addon</addon>
+          \t</addons>
+          \t<pstable>
+          \t\t<ps name="web">bin/web start</web>
+          \t</pstable>
+          </release>
+  - endpoint:
+      action: POST /apps/:app/releases
+      text: Rollback to a release
+      params:
+        - name: app
+          text: the app name
+          required: true
+        - name: rollback
+          text: the release to which to roll back
+          required: true
+      response:
+        json: |
+          HTTP/1.1 200 OK
+          v1
+        xml: |
+          HTTP/1.1 200 OK
+          v1

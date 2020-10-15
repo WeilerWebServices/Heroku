@@ -1,0 +1,57 @@
+#getting-started
+
+  h2 Authentication
+
+  .section
+    p
+      | Authentication to the Heroku API is accomplished using an API key, available on the
+      | <a href="https://api.heroku.com/account">My Account</a> page.
+    p
+      | Once you have an API key, use HTTP Basic Authentication with a blank username and
+      | the API key as a password. Here's an example using <code>curl</code> (the colon separates username and password):
+    p.code
+      | curl -H "Accept: application/json" -u :apikeyhere https://api.heroku.com/apps
+
+  h2 Headers
+
+  .section
+    p
+      | An <code>Accept</code> header that contains either <code>application/json</code> or
+      | <code>application/xml</code> is required to use the API.
+    p
+      | To list all of your apps in XML, use this <code>curl</code> command:
+    p.code
+      | curl -H "Accept: application/xml" -u :apikeyhere https://api.heroku.com/apps
+
+  h2 Response Codes
+
+  .section.response-codes
+    h3 200 OK
+    p  Request succeeded, response contains requested data.
+    h3 401 Unauthorized
+    p  You are attempting to access the API with invalid credentials.
+    h3 402 Payment Required
+    p  You must confirm your billing info to use this API.
+    h3 403 Forbidden
+    p  Your access level does not permit this API call.
+    h3 404 Not Found
+    p  The API endpoint or resource you are attempting to fetch does not exist.
+    h3 412 Precondition Failed
+    p  This API has been deprecated.
+    h3 422 Unprocessable Entity
+    p  An error has occurred, see response body for details.
+    h3 423 Locked
+    p  This API command requires confirmation. Pass the app name as a <code>confirm</code> parameter.
+
+  h2 Error Responses
+
+  .section.errors
+    h3 JSON
+    p.code
+      | { "error": "The error message" }
+    h3 XML
+    p.code
+      | &lt;?xml version="1.0"&gt;<br>
+      | &lt;errors&gt;<br>
+      | &nbsp;&nbsp;&lt;error&gt;The error message&lt;/error&gt;<br>
+      | &lt;/errors&gt;

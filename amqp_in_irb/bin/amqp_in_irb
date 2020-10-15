@@ -1,0 +1,57 @@
+#!/usr/bin/env ruby
+$LOAD_PATH << "#{File.dirname(__FILE__)}/../lib"
+OPTS = <<OPTS
+  --host      : string          Host to connect to (defaults to "localhost").
+  --port      : natural         Port on the host.
+  --user      : string          User to connect as (defaults to "guest").
+  --pass      : string          Password to use (defaults to "guest").
+  --vhost     : string          AMQP virtual host.
+  --logging   : bool            Turns on AMQP library's logging (off default).
+  --ssl       : bool            Turns on SSL.
+OPTS
+USAGE = <<USAGE
+ USAGE: amqp_in_irb <AMQP URL>
+        amqp_in_irb <option>+
+
+  Connect to an AMQP server and pop up an IRB console, using the connection
+  parameters provided in an AMQP URL argument, an `AMQP_URL' environment
+  variables, RabbitMQ environment variables or options as listed below.
+
+  In the IRB console, there is a variable $conn that exposes the AMQP
+  connection. Under the hood, our tool relies on Bunny, a synchronous AMQP
+  client library for Ruby. A simple session:
+
+    :;  amqp_in_irb
+    Connection available in `$conn'.
+    irb(main):001:0> q = $conn.queue('tasks')
+    => #<Bunny::Queue:0x7f4982a20d50 @subscripti...
+    irb(main):002:0> q.publish('LOL')
+    => nil
+    irb(main):003:0> m = q.pop[:payload]
+    => "LOL"
+    irb(main):004:0> q.delete
+    => :delete_ok
+
+  Many other AMQP methods are exposed by the Bunny gem.
+
+ OPTIONS
+
+#{OPTS}
+
+USAGE
+
+trap('INT'){ abort 'Terminated.' }
+
+
+begin
+  puts USAGE
+  exit 0
+end unless (%w| -h -? --help | & ARGV).empty?
+
+require 'amqp_in_irb'
+
+include AMQPInIRB
+
+params = derive_params(OPTS)
+connect_and_run(params)
+

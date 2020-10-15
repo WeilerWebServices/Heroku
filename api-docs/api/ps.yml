@@ -1,0 +1,163 @@
+---
+title: "Processes"
+endpoints:
+  - endpoint:
+      action: GET /apps/:app/ps
+      text: List processes for an app
+      params:
+        - name: app
+          text: the app name
+          required: true
+      response:
+        json: |
+          HTTP/1.1 200 OK
+          [
+          \t{
+          \t\t"upid": "0000000",
+          \t\t"process": "web.1",
+          \t\t"type": "Dyno",
+          \t\t"command": "dyno",
+          \t\t"app_name": "example",
+          \t\t"slug": "0000000_0000",
+          \t\t"action": "down",
+          \t\t"state": "idle"
+          \t\t"pretty_state": "idle for 2h",
+          \t\t"elapsed": 0,
+          \t\t"rendezvous_url": null,
+          \t\t"attached": false,
+          \t\t"transitioned_at": "2011/01/01 00:00:00 -0700",
+          \t}
+          ]
+        xml: |
+          HTTP/1.1 200 OK
+          <?xml version="1.0" encoding="UTF-8"?>
+          <processes>
+          \t<process>
+          \t\t<upid>0000000</upid>
+          \t\t<process>web.1</process>
+          \t\t<type>Dyno</type>
+          \t\t<command>dyno</command>
+          \t\t<app_name>example</app_name>
+          \t\t<slug>0000000_0000</slug>
+          \t\t<action>down</action>
+          \t\t<state>idle</state>
+          \t\t<pretty_state>idle for 2h</pretty_state>
+          \t\t<elapsed>0</elapsed>
+          \t\t<rendezvous_url></rendezvous_url>
+          \t\t<attached>false</attached>
+          \t\t<transitioned_at>2011/01/01 00:00:00 -0700</transitioned_at>
+          \t</process>
+          </processes>
+  - endpoint:
+      action: POST /apps/:app/ps
+      text: |
+        Run a one-off process
+      params:
+        - name: app
+          text: the app name
+          required: true
+        - name: attach
+          text: |
+            +true+: use rendezvous to access stdin/stdout
+            +&lt;blank&gt;+: stream process output to the application log
+        - name: command
+          text: the command to run
+          required: true
+      response:
+        json: |
+          HTTP/1.1 200 OK
+          {
+          \t"slug": "0000000_0000",
+          \t"command": "ls",
+          \t"upid": "00000000",
+          \t"process": "run.1",
+          \t"action": "complete",
+          \t"rendezvous_url": "tcp://rendezvous.heroku.com:5000/0000000000000000000",
+          \t"type": "Ps",
+          \t"elapsed": 0,
+          \t"attached": true,
+          \t"transitioned_at": "2011/01/01 00:00:00 -0700",
+          \t"state": "starting"
+          }
+        xml: |
+          HTTP/1.1 200 OK
+          <?xml version="1.0" encoding="UTF-8"?>
+          <process>
+          \t<slug>0000000_0000</slug>
+          \t<command>ls</command>
+          \t<upid>00000000</upid>
+          \t<process>run.1</process>
+          \t<action>complete</action>
+          \t<rendezvous_url>tcp://rendezvous.heroku.com:5000/00000000000000000000</rendezvous_url>
+          \t<type>Ps</type>
+          \t<elapsed>0</elapsed>
+          \t<attached>true</attached>
+          \t<transitioned_at>2011/01/01 00:00:00 -0700</transitioned_at>
+          \t<state>starting</state>
+          </process>
+  - endpoint:
+      action: POST /apps/:app/ps/restart
+      text: |
+        Restart processes of an app
+        Specify either +ps+ or +type+ to restart only the specified processes
+        Leave both blank to restart the entire app
+      params:
+        - name: app
+          text: the app name
+          required: true
+        - name: ps
+          text: the name of a process to restart
+          required: false
+        - name: type
+          text: the type of process to restart
+          required: false
+      response:
+        json: |
+          HTTP/1.1 200 OK
+          ok
+        xml: |
+          HTTP/1.1 200 OK
+          ok
+  - endpoint:
+      action: POST /apps/:app/ps/stop
+      text: |
+        Stop processes of an app
+        Specify either +ps+ or +type+ to stop the specified processes
+      params:
+        - name: app
+          text: the app name
+          required: true
+        - name: ps
+          text: the name of a process to stop
+          required: false
+        - name: type
+          text: the type of process to stop
+          required: false
+      response:
+        json: |
+          HTTP/1.1 200 OK
+          ok
+        xml: |
+          HTTP/1.1 200 OK
+          ok
+  - endpoint:
+      action: POST /apps/:app/ps/scale
+      text: |
+        Scale processes of an app
+      params:
+        - name: app
+          text: the app name
+          required: true
+        - name: type
+          text: the type of process to scale
+          required: true
+        - name: qty
+          text: the desired number of processes of this type
+          required: true
+      response:
+        json: |
+          HTTP/1.1 200 OK
+          2
+        xml: |
+          HTTP/1.1 200 OK
+          2

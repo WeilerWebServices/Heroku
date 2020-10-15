@@ -1,0 +1,21 @@
+---
+"$schema": http://json-schema.org/draft-04/hyper-schema
+title: Healthchecks
+definitions:
+  status:
+    description: API control rod status (normal, read_only)
+    example: normal
+    type:
+      - string
+links:
+- description: Performs a health check against the API.
+  href: "/healthcheck"
+  method: GET
+  rel: self
+  targetSchema:
+    type:
+      - object
+    properties:
+      status:
+        "$ref": "/schemata/health#/definitions/status"
+id: schemata/health

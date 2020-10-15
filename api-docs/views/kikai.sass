@@ -1,0 +1,217 @@
+body
+  :background #fff
+  :font-family Helvetica, Arial, sans-serif
+  :margin-top 12px
+
+#container
+  :width 1000px
+  :margin auto
+
+#warning
+  :background #feefb3
+  :color #9f6000
+  :margin-bottom 12px
+  :padding 8px 12px
+  :text-align center
+
+#header
+  :background #333
+  :color #fff
+  :padding 8px 12px
+  h1
+    :font-size 36px
+    :margin 0
+    :display inline-block
+  #accept
+    :float right
+    :display inline-block
+    :margin-top 10px
+    :margin-right 40px
+    span
+      :font-size 16px
+      :margin-right 14px
+  #api_key
+    :float right
+    :display inline-block
+    :margin-top 10px
+    :margin-right 8px
+    span
+      :font-size 16px
+      :margin-right 14px
+    input
+      :width 250px
+
+ul.sidebar
+  :width 200px
+  :background #ccc
+  :margin 0
+  :float left
+  :display inline-block
+  :list-style-type none
+  :padding 0
+  :border 1px #999 solid
+  :border-bottom 0
+  :margin-top 12px
+  li
+    :border-bottom 1px #999 solid
+    &.active
+      :background-color #666
+      a
+        :color #fff
+    &.item
+      :background-color #eee
+      :font-size 0.7em
+      :padding-left 4px
+    &:hover
+      :background-color #666
+      a
+        :color #fff
+    &.item:hover
+      :background-color #fff
+      a
+        :color #333
+    a
+      :color #333
+      :padding 8px 12px
+      :font-weight bold
+      :text-decoration none
+      :display inline-block
+      :width 168px
+
+#content
+  :float right
+  :width 786px
+  :padding 12px
+  :padding-right 0px
+  h3
+    :margin 4px
+    :background #666
+    :color #fff
+    :border 1px #333 solid
+    :padding 8px 12px
+  .endpoint
+    :margin-right 0
+    :margin-bottom 30px
+    :padding 8px 12px
+    :background #ddd
+    :border 1px #999 solid
+    :padding-bottom 0
+    h4
+      :margin -12px
+      :margin-bottom 8px
+      :margin-top -8px
+      :background #aaa
+      :padding 8px 12px
+      :padding-bottom 5px
+      :border-bottom 1px #999 solid
+      .status
+        :float right
+        :margin-right 6px
+        :display none
+      .execute
+        :float right
+        :margin-top -2px
+        :margin-right -4px
+    .text
+      :padding 16px
+      :padding-left 12px
+      :padding-bottom 10px
+      :border-bottom 1px #999 solid
+      :margin -12px
+      :line-height 24px
+    .params
+      :margin -12px
+      :margin-top 12px
+      :margin-bottom 0
+      :background #ccc
+      .param
+        :border-bottom 1px #aaa solid
+        .name
+          :display inline-block
+          :width 130px
+          :padding 8px 12px
+          :font-size 0.9em
+        .input
+          :display inline-block
+          :padding 8px 12px
+          input
+            :width 150px
+        .type
+          :display inline-block
+          :padding 8px 12px
+          :padding-left 2px
+          :font-size 0.70em
+          :margin-right 10px
+          :width 50px
+          &.required
+            :font-weight bold
+          &.optional
+            :font-style italic
+        .text
+          :display inline-block
+          :padding 8px 12px
+          :font-size 0.85em
+          :border-bottom 0
+          :margin-top 0px
+    .web
+      :margin-top 8px
+      h4
+        :font-size 0.8em
+        :padding-top 4px
+        :padding-bottom 4px
+        :padding-left 8px
+      textarea
+        :margin-left -3px
+        :margin-bottom 4px
+        :width 760px
+        :font-family Courier, Courier New, monospace
+    .curl
+      textarea
+        :height 70px
+    .response
+      textarea
+        :height 200px
+
+
+#getting-started
+  h2
+    :background-color #ccc
+    :margin 0
+    :padding 8px 12px
+    :border 1px #999 solid
+    :font-size 18px
+    :border-bottom 0
+  .section
+    :background-color #eee
+    :padding 0px 8px
+    :border 1px #999 solid
+    :margin-bottom 12px
+    h3
+      :background #eee
+      :border 0
+      :border-bottom 1px #999 solid
+      :color #666
+      :padding 4px
+      :margin-bottom 4px
+      :margin-top 12px
+  .response-codes
+    p
+      :margin-top 0px
+      :padding 0
+  .errors
+    .code
+      :margin-top 8px
+  p
+    :margin 0
+    :padding 0
+    :margin 16px 8px
+    :line-height 20px
+    code
+      :font-size 16px
+      :background-color #fcfcfc
+      :padding 2px 6px
+  p.code
+    :background #333
+    :color #fff
+    :font-family monospace
+    :padding 8px 16px

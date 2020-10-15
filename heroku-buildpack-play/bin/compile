@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+# bin/compile <build-dir> <cache-dir> <env-dir>
+
+# Parse args
+BUILD_DIR=$1
+CACHE_DIR=$2
+ENV_DIR=$3
+
+BIN_DIR=$(cd $(dirname $0); pwd) # absolute path
+
+# source in common functions
+. $BIN_DIR/common.sh
+
+export_env_dir $ENV_DIR
+
+JVM_COMMON_BUILDPACK=${JVM_COMMON_BUILDPACK:-"https://buildpack-registry.s3.amazonaws.com/buildpacks/heroku/jvm.tgz"}
+mkdir -p /tmp/jvm-common
+curl --silent --location $JVM_COMMON_BUILDPACK | tar xzm -C /tmp/jvm-common --strip-components=1
+. /tmp/jvm-common/bin/util
+. /tmp/jvm-common/bin/java
+
+#create the cache dir if it doesn't exist
+mkdir -p $CACHE_DIR
+
+# create default system.properties
+if [ ! -f ${BUILD_DIR}/system.properties ]; then
+  echo "java.runtime.version=1.6" > ${BUILD_DIR}/system.properties
+fi
+
+# install JDK
+javaVersion=$(detect_java_version ${BUILD_DIR})
+echo -n "-----> Installing OpenJDK ${javaVersion}..."
+install_java ${BUILD_DIR} ${javaVersion}
+jdk_overlay ${BUILD_DIR}
+echo " done"
+
+PLAY_PATH=".play"
+IVY_PATH=".ivy2"
+
+# Change dir to handle relative paths
+cd $BUILD_DIR
+
+# Unpack cache
+for DIR in $PLAY_PATH $IVY_PATH ; do
+  rm -rf $DIR
+  if [ -d $CACHE_DIR/$DIR ]; then
+    cp -r $CACHE_DIR/$DIR $DIR
+  fi
+done
+
+# Install the custom Ivy settings
+if [ -d ${IVY_PATH}-overlay ]; then
+  echo -n "-----> Installing custom Ivy files..."
+  mkdir -p ${IVY_PATH}
+  mv ${IVY_PATH}-overlay/* ${IVY_PATH}
+  echo " done"
+fi
+
+PLAY_VERSION=$(get_play_version conf/dependencies.yml)
+DEFAULT_PLAY_VERSION="1.3.1"
+VERSION_DECLARED=true
+
+if [ -z "$PLAY_VERSION" ] ; then
+  PLAY_VERSION=$DEFAULT_PLAY_VERSION
+  VERSION_DECLARED=false
+  echo "-----> WARNING: Play! version not specified in dependencies.yml. Default version: $PLAY_VERSION being used...."
+fi
+
+# Install Play! or update the version
+if [ ! -f $PLAY_PATH/play ]; then
+  install_play $PLAY_VERSION
+else
+  INSTALLED_PLAY_VERSION=`cat $PLAY_PATH/framework/src/play/version`
+  if [ "$INSTALLED_PLAY_VERSION" != "$PLAY_VERSION" ] && $VERSION_DECLARED ; then
+    echo "-----> Updating Play! version. Previous version was $INSTALLED_PLAY_VERSION. Updating to $PLAY_VERSION..."
+    rm -rf $PLAY_PATH
+    install_play $PLAY_VERSION
+  fi
+fi
+
+# Build app
+echo "-----> Building Play! application..."
+$PLAY_PATH/play version | sed -u 's/^/       /'
+
+# Precompile the Play! application at the root of $BUILD_DIR
+APP_DIR=./
+echo "       Building Play! application at directory $APP_DIR"
+
+DEPENDENCIES_CMD="$PLAY_PATH/play dependencies $APP_DIR --forProd --forceCopy --silent -Duser.home=$BUILD_DIR 2>&1"
+echo "       Resolving dependencies: $DEPENDENCIES_CMD"
+eval "$DEPENDENCIES_CMD" | sed -u 's/^/       /'
+check_compile_status
+
+PRECOMPILE_CMD="$PLAY_PATH/play precompile $APP_DIR --silent 2>&1"
+echo "       Precompiling: $PRECOMPILE_CMD"
+eval "$PRECOMPILE_CMD" | sed -u 's/^/       /'
+check_compile_status
+
+# Repack Play! framework into cache
+mkdir -p $CACHE_DIR
+for DIR in $PLAY_PATH $IVY_PATH ; do
+  rm -rf $CACHE_DIR/$DIR
+  cp -r $DIR $CACHE_DIR/$DIR
+done
+
+PROFILE_PATH="$BUILD_DIR/.profile.d/play.sh"
+mkdir -p $(dirname $PROFILE_PATH)
+echo 'export PATH="/app/.play:/app/.jdk/bin:/app/.tools:$PATH"' >> $PROFILE_PATH
+
+# Remove build time dependencies from slug
+# (Note: runtime modules are copied to slug with --forceCopy option)
+rm -fr $PLAY_PATH/modules
+rm -fr $IVY_PATH
+remove_play $BUILD_DIR $PLAY_VERSION
+
+# Warn if no Procfile is present
+if [ ! -f Procfile ]; then
+  echo "-----> No Procfile found. Will use the following default process: "
+  echo "       play run --http.port=\$PORT \$PLAY_OPTS"
+fi

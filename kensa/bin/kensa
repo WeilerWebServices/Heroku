@@ -1,0 +1,91 @@
+#!/usr/bin/env ruby
+
+lib = File.expand_path(File.dirname(__FILE__) + '/../lib')
+$LOAD_PATH.unshift(lib) if File.directory?(lib) && !$LOAD_PATH.include?(lib)
+
+require 'rubygems'
+require 'heroku/kensa'
+require 'heroku/kensa/client'
+
+$stdout.sync = true
+
+include Heroku::Kensa
+
+begin
+  args = ARGV.dup
+  ARGV.clear
+  Client.new(args).run!
+  puts 'WARNING: Kensa is in the process of being deprecated. Please install the new addons-admin plugin for the heroku CLI:'
+  puts '"heroku plugins:install addons-admin"'
+rescue Client::CommandInvalid => e
+  puts e.message unless e.message.empty?
+  abort File.read(__FILE__).split('__END__').last
+end
+
+__END__
+Usage: kensa [OPTIONS] command
+       kensa init
+       kensa create <app_name> --template
+       kensa test   <type> [arg1 arg2 ...]
+       kensa run    <command> [arg1 arg1 ...]
+
+OPTIONS
+
+  -f, --filename path-to-file
+    Sets the manifest file to operate on, default is addon-manifest.json.
+
+  -h, --help
+    Show this message
+
+  -p, --plan
+    Provision the specified plan instead of "test"
+
+  --async
+    Check provision call with async response.
+
+  --without-sso
+    Skip single sign-on authentication when doing provision calls
+
+  --post
+    Use HTTP POST for single sign-on instead of GET
+
+  --template
+    Name of git template on github or full url of git repo.
+
+COMMANDS
+
+  init            Creates a skeleton manifest
+
+  test <type>     Simulate call from Heroku (provision or deprovision)
+
+  run <command>   Provisions a resource and runs command in returned ENV
+
+  sso <id>        Launches the browser on a Heroku session for the specified id
+
+  push            Send the manifest to Heroku
+
+  pull <id>       Fetch the latest manifest from Heroku
+
+TEST TYPES
+
+  provision [optional params]
+    Simulate a provision call from Heroku.
+    [optional params]
+      accepts extra command options and passes them on to the provision request
+      ie: kensa test provision --foo bar
+
+  deprovision <id>
+    Simulate a deprovision call from Heroku.
+
+  planchange <id> <new_plan>
+    Simulate a plan change call from Heroku.
+
+  sso <id>
+    Simulate a single sign-on call from Heroku.
+
+  manifest
+    Confirm that the manifest is valid.  Automatically runs before all tests.
+
+  all
+    runs provision, planchange, and deprovision tests.
+    defaults to using 'foo' for planchange plan.

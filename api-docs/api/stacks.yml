@@ -1,0 +1,60 @@
+---
+title: "Stacks"
+endpoints:
+  - endpoint:
+      action: GET /apps/:app/stack
+      text: List available stacks for an app
+      params:
+        - name: app
+          text: the app name
+          required: true
+      response:
+        json: |
+          HTTP/1.1 200 OK
+          [
+          \t{
+          \t\t"name": "aspen-mri-1.8.6",
+          \t\t"current": false,
+          \t\t"requested": false,
+          \t\t"beta": false
+          \t}
+          ]
+        xml: |
+          <?xml version="1.0" encoding="UTF-8"?>
+          <stacks>
+          \t<stack>
+          \t\t<name>aspen-mri-1.8.6</name>
+          \t\t<beta>false</beta>
+          \t\t<current>false</current>
+          \t\t<requested>false</requested>
+          \t</stack>
+          </stacks>
+  - endpoint:
+      action: PUT /apps/:app/stack
+      text: Migrate an app to a new stack
+      params:
+        - name: app
+          text: the app name
+          required: true
+        - name: body
+          text: the target stack
+          required: true
+      response:
+        json: |
+          HTTP/1.1 200 OK
+          \-----> Preparing to migrate example 
+          \t\t\t oldstack -> newstack
+          \t\t\t
+          \t\t\t NOTE: Additional details here
+          \t\t\t
+          \-----> Migration prepared.
+          \t\t\t Run 'git push heroku master' to execute migration.
+        xml: |
+          HTTP/1.1 200 OK
+          \-----> Preparing to migrate example 
+          \t\t\t oldstack -> newstack
+          \t\t\t
+          \t\t\t NOTE: Additional details here
+          \t\t\t
+          \-----> Migration prepared.
+          \t\t\t Run 'git push heroku master' to execute migration.

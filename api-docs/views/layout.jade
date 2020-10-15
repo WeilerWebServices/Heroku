@@ -1,0 +1,41 @@
+!!! 5
+html(lang="en")
+  head
+    title Heroku API
+    script(src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js")
+    script(src="/jquery.color.js")
+    script(src="/jquery.cookie.js")
+    script(src="/kikai.js")
+    link(rel="stylesheet", href="/kikai.css")
+  body
+    #container
+
+      #warning
+        span This documentation is no longer supported, please refer to the <a href="https://devcenter.heroku.com/platform-api-reference">platform API reference</a>.
+        h2 This API <a href="https://devcenter.heroku.com/changelog-items/862">will be sunset on April 15, 2017</a>.
+
+      #header
+        #api_key
+          span API Key
+          input(type="text")
+        #accept
+          span Accept
+          select
+            option application/json
+            option application/xml
+        h1 Heroku API
+
+      ul.sidebar
+        !{ section_li("", "Getting Started", current_section) }
+        !{ section_li("addons", "Addons", current_section) }
+        !{ section_li("apps", "Apps", current_section) }
+        !{ section_li("collaborators", "Collaborators", current_section) }
+        !{ section_li("config", "Config", current_section) }
+        !{ section_li("domains", "Domains", current_section) }
+        !{ section_li("keys", "Keys", current_section) }
+        !{ section_li("logs", "Logs", current_section) }
+        !{ section_li("ps", "Processes", current_section) }
+        !{ section_li("releases", "Releases", current_section) }
+        !{ section_li("stacks", "Stacks", current_section) }
+
+      #content!= body

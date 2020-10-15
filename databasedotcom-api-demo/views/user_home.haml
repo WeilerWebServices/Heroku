@@ -1,0 +1,38 @@
+%h2 Chatter Feeds
+.chatter_links
+  - feeds = %w(news user_profile record to people groups files company)
+  - feeds.each do |feed|
+    .feed_link
+      %a{:href => "/feeds/#{feed}"}= feed == "to" ? "To-Me" : feed.camelize
+  - Databasedotcom::Chatter::FilterFeed.feeds(session[:client])["feeds"].each do |filter_feed|
+    %a{:href => "/filter_feeds/#{filter_feed["label"]}/#{filter_feed["feedUrl"].match(/\/(\d+)$/)[1]}"}
+      = filter_feed["label"]
+
+%h2 Conversations
+.conversation_links
+  - conversations = Databasedotcom::Chatter::Conversation.all(session[:client], :user_id => "me")
+  - conversations.each do |conversation|
+    .conversation_link
+      %a{:href => "/conversations/#{conversation.id}"}
+        = conversation.raw_hash["members"].collect {|m| m["name"]}.join(" and ")
+
+%h2 Trending Topics
+- session[:client].trending_topics.each do |topic|
+  .trending_topic
+    %a{:href => "/chatter_search?q=#{topic}"}= topic
+    
+%h2 Classes in the database
+.search
+  %form{:action => '/search'}
+    .search_box
+      %input{:type => "textfield", :name => "search"}
+    .search_button
+      %input{:type => "submit", :value => "SOSL Search"}
+
+.page
+  %ul
+    - session[:client].list_sobjects.each do |sobject|
+      %li
+        .sobject
+          %a{:href => "/sobject/#{sobject}" }
+            = sobject

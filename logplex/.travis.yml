@@ -1,0 +1,25 @@
+sudo: required
+services:
+  - docker
+
+env:
+  COMPOSE_VERSION: 1.4.1
+
+before_install:
+ - curl -L https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+ - chmod +x docker-compose
+ - sudo mv docker-compose /usr/local/bin
+
+script:
+  - docker-compose build
+  - docker-compose run test
+
+notifications:
+  email: false
+  hipchat:
+    template:
+      - '%{repository}#%{build_number} (%{branch} - %{commit} : %{author}): %{message}
+        (<a href="%{build_url}">Details</a> | <a href="%{compare_url}">Change view</a>)'
+    format: html
+    rooms:
+    - secure: "PR3OjYP6aML3f/v9xonW8oASpaU2DGD0LDT/8keH2/PV66gY9MB8Vt6gTMpmEa/XctD5mMn7GCviSjrrZ/abp6NFPembWgAMf/RvBpvBNml8jzRFvzitcwNWwqyZFM9rM2uqJU1SHrPfB2tTKznthAgOZXMc6N0xDa4apK3fR+0="

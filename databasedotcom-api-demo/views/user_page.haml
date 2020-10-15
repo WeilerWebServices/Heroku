@@ -1,0 +1,59 @@
+.page
+  %h2
+    = @user.name
+
+  .photo
+    %img{:src => URI.join(session[:client].instance_url, @user.raw_hash["photo"]["smallPhotoUrl"]) + "?oauth_token=#{session[:client].oauth_token}"}
+
+  .status
+    %b Status: 
+    = @user.raw_hash["currentStatus"]["body"]["text"]
+    - if session[:client].user_id == @user.id
+      .update_status
+        %form{:action => "/chatter/users/#{@user.id}/post_status", :method => "post"}
+          .status_box
+            %input{:type => "text", :name => "status"}
+          .status_submit
+            %input{:type => "submit", :value => "Share"}
+
+  .info
+    .address
+      Address:
+      - address = @user.raw_hash["address"]
+      == #{address["street"]} #{address["city"]} #{address["state"]} #{address["zip"]}
+    .email
+      Email:
+      = @user.raw_hash["email"]
+  .groups
+    %h3 Groups
+    - @user.groups.each do |group|
+      .group
+        %a{:href => "/groups/#{group.id}"}
+          = group.raw_hash["name"]
+
+  .following
+    %h3 Following
+    - following = @user.following
+    = following.empty? ? "none" : ""
+    - following.each do |follow|
+      .follow
+        = "#{follow.raw_hash["subject"]["name"]} (#{follow.raw_hash["subject"]["type"]})"
+
+  .followers
+    %h3 Followers
+    - followers = @user.followers
+    = followers.empty? ? "none" : ""
+    - followers.each do |follower|
+      .follower
+        %a{:href => "/users/#{follower.raw_hash["subject"]["id"]}"}
+          = follower.raw_hash["subject"]["name"]
+
+  - unless @user.id == session[:client].user_id
+    - subscription = @user.followers.detect {|f| f.raw_hash["subscriber"]["id"] == session[:client].user_id}
+    - if subscription
+      %form{:action => "/subscriptions/#{subscription.id}?return_to=/users/#{@user.id}", :method => "post"}
+        %input{:type => "hidden", :name => "_method", :value => "DELETE"}
+        %input{:type => "submit", :value => "Unfollow this user"}
+    - else
+      %form{:action => "/users/#{@user.id}/follow?return_to=/users/#{@user.id}", :method => "post"}
+        %input{:type => "submit", :value => "Follow this user"}

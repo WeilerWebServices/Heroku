@@ -1,0 +1,34 @@
+---
+title: "Logs"
+endpoints:
+  - endpoint:
+      action: GET /apps/:app/logs
+      text: Get logs for an app
+      params:
+        - name: app
+          text: the app name
+          required: true
+        - name: logplex
+          text: use logplex to stream logs (always +true+)
+          required: true
+          value: "true"
+        - name: num
+          text: the number of lines to display
+          required: false 
+        - name: ps
+          text: only display logs from a given process
+          required: false
+        - name: source
+          text: only display logs from a given source
+          required: false
+        - name: tail
+          text:  |
+            +1+: continually stream logs
+            +&lt;blank&gt;+: display only +num+ logs
+      response:
+        json: |
+          HTTP/1.1 200 OK
+          https://logplex.heroku.com/sessions/0000000-0000-0000-0000-0000000000
+        xml: |
+          HTTP/1.1 200 OK
+          https://logplex.heroku.com/sessions/0000000-0000-0000-0000-0000000000

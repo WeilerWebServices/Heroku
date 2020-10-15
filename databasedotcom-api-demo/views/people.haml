@@ -1,0 +1,11 @@
+.page
+  %h2
+    = @type
+  .entities
+    %ul
+      - @entities.each do |ent|
+        %li
+          .ent
+            %a{:href => "/#{@type.downcase}/#{ent.id}"}
+              = ent.name
+

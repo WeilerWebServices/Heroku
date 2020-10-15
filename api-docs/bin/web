@@ -1,0 +1,10 @@
+#!/bin/bash
+
+ROOT=$(dirname $(dirname $0))
+PATH="node_modules/.bin:$PATH"
+
+if [ "${NODE_ENV}" == "production" ]; then
+  exec env NODE_PATH="$ROOT/lib" coffee web.coffee
+else
+  exec env NODE_PATH="$ROOT/lib" nodemon -w . web.coffee
+fi

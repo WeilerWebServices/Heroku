@@ -1,0 +1,115 @@
+#!/usr/bin/env escript
+
+%% Only works on localhost, assumes the current hostname will fit the localhost
+-define(NAME, filename:basename(escript:script_name())).
+
+main(["deny_redis_buffers"]) ->
+  set_app_config(deny_redis_buffers, true);
+main(["allow_redis_buffers"]) ->
+  set_app_config(deny_redis_buffers, false);
+main(["deny_tail_sessions"]) ->
+  set_app_config(deny_tail_sessions, true);
+main(["allow_tail_sessions"]) ->
+  set_app_config(deny_tail_sessions, false);
+main(["deny_drain_forwarding"]) ->
+  set_app_config(deny_drain_forwarding, true);
+main(["allow_drain_forwarding"]) ->
+  set_app_config(deny_drain_forwarding, false);
+main(["deny_logs_ingress"]) ->
+  set_app_config(deny_logs_ingress, true);
+main(["allow_logs_ingress"]) ->
+  set_app_config(deny_logs_ingress, false);
+main(["enable_batch_redis"]) ->
+  set_app_config(batch_redis, true);
+main(["disable_batch_redis"]) ->
+  set_app_config(batch_redis, false);
+main(["enable_log_api_user"]) ->
+  set_app_config(log_api_user, true);
+main(["disable_log_api_user"]) ->
+  set_app_config(log_api_user, false);
+main(["kill_tail_sessions"]) ->
+  toggle_rod(logplex_tail, kill_all_sessions, [], "Killing all tail sessions");
+main(["disable_firehose"]) ->
+  toggle_rod(logplex_firehose, disable, [], "Disabling firehose");
+main(["enable_firehose"]) ->
+  toggle_rod(logplex_firehose, enable, [], "Enabling firehose");
+main(["disable_api"]) ->
+  toggle_rod(logplex_api_v3, set_status, [disabled], "Disabling v3 API");
+main(["enable_api"]) ->
+    toggle_rod(logplex_api_v3, set_status, [normal], "Enabling v3 API");
+main(["set_api_read_only"]) ->
+    toggle_rod(logplex_api_v3, set_status, [read_only], "Setting v3 API in read-only mode");
+main(["disable_legacy_api"]) ->
+    toggle_rod(logplex_api, set_status, [disabled], "Disabling legacy API");
+main(["enable_legacy_api"]) ->
+    toggle_rod(logplex_api, set_status, [normal], "Enabling legacy API");
+main(["set_legacy_api_read_only"]) ->
+    toggle_rod(logplex_api, set_status, [read_only], "Setting legacy API in read-only mode");
+main(_) ->
+    io:format("Control rods for local logplex node. These control rods can be modified on the fly while logplex is running.~n~n"
+              "Usage: control_rods <rod>~n~n"
+              "deny_redis_buffers\t\tPrevent all writes to logplex_logs_redis nodes.~n"
+              "allow_redis_buffers\t\tAllow writes to logplex_logs_redis nodes.~n~n"
+              "deny_tail_sessions\t\tPrevent creation of new tail sessions.~n"
+              "kill_tail_sessions\t\tKill all tail sessions on this node.~n"
+              "allow_tail_sessions\t\tAllow creation of new tail sessions.~n~n"
+              "deny_drain_forwarding\t\tPrevent all writes to drains.~n"
+              "allow_drain_forwarding\t\tAllow writes to drains.~n~n"
+              "deny_logs_ingress\t\t\tPrevent ingress for all logs.~n"
+              "allow_logs_ingress\t\t\tAllow logs ingress.~n~n"
+              "disable_firehose\t\tDisable firehose.~n"
+              "enable_firehose\t\t\tEnable firehose.~n~n"
+              "disable_api\t\t\tDisable v3 API.~n"
+              "enable_api\t\t\tEnable v3 API.~n"
+              "set_api_read_only\t\tSet v3 API in read-only mode.~n"
+              "disable_legacy_api\t\tDisable legacy API.~n"
+              "enable_legacy_api\t\tEnable legacy API.~n"
+              "set_legacy_api_read_only\tSet legacy API in read-only mode.~n~n"
+              "enable_batch_redis\t\tEnable batch redis.~n"
+              "disable_batch_redis\t\tDisable batch redis.~n~n"
+              "enable_log_api_user\t\tEnable logging of API users.~n"
+              "disable_log_api_user\t\tDisable logging of API users.~n"
+             ),
+    halt(0).
+
+connect() ->
+    Node = node_name(),
+    io:format("Starting distributed mode.~n"),
+    {ok, _} = net_kernel:start([script_name(), longnames]),
+    set_cookie(Node),
+    io:format("Connecting (hidden) to ~p.~n", [Node]),
+    true = net_kernel:hidden_connect(Node), % undocumented yay!
+    io:format("Connected.~n"),
+    Node.
+
+node_name() ->
+    list_to_atom("logplex@" ++ net_adm:localhost()).
+
+disconnect() ->
+    io:format("Disconnecting.~n"),
+    net_kernel:stop().
+
+script_name() ->
+    list_to_atom(?NAME ++ "_"
+                 ++ os:getpid()
+                 ++ "@" ++ net_adm:localhost()).
+
+set_cookie(Node) ->
+    case os:getenv("LOGPLEX_COOKIE") of
+        false ->
+            io:format("LOGPLEX_COOKIE not found, proceeding without it.~n");
+        Cookie ->
+            erlang:set_cookie(Node, list_to_atom(Cookie))
+    end.
+
+set_app_config(Config, Value) ->
+  Args = [Config, Value],
+  toggle_rod(logplex_app, set_config, Args, io_lib:format("Setting app_config ~p to ~w", Args)).
+
+toggle_rod(Mod, Fun, Args, Msg) ->
+  Node = connect(),
+  io:format("~s...~n", [Msg]),
+  Res = rpc:call(Node, Mod, Fun, Args),
+  io:format("Node: ~p~n", [Res]),
+  disconnect(),
+  halt(0).

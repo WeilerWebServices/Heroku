@@ -1,0 +1,28 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
+    <f:entry>
+        <a href="https://docs.google.com/spreadsheet/viewform?formkey=dExWd1dtTy1LRlktSDVmYUpkbURGZUE6MQ#gid=0" target="_blank">Send Feedback</a>
+    </f:entry>
+
+    <f:entry title="Buildpack URL" field="buildpackUrl">
+        <f:textbox/>
+    </f:entry>
+
+    <f:advanced>
+        <f:entry title="Build Environment" field="buildEnv">
+            <f:textarea/>
+        </f:entry>
+
+        <f:entry title="Includes" field="globIncludes">
+            <f:textbox default="**/*"/>
+        </f:entry>
+
+        <f:entry title="Excludes" field="globExcludes">
+            <f:textbox default=".git/**"/>
+        </f:entry>
+
+        <f:entry title="Use Cache" field="useCache">
+            <f:checkbox default="true"/>
+        </f:entry>
+    </f:advanced>
+</j:jelly>

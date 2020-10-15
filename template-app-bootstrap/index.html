@@ -1,0 +1,158 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>{{app-name}}</title>
+
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" rel="stylesheet">
+    <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap-responsive.css" rel="stylesheet">
+
+    <script src="http://heroku.github.com/template-app-bootstrap/jquery-1.7.1.min.js"></script>
+    <script src="http://heroku.github.com/template-app-bootstrap/jquery.replacetext.min.js"></script>
+
+    <!--
+      IMPORTANT:
+      This is Heroku specific styling. Remove to customize.
+    -->
+    <link href="http://heroku.github.com/template-app-bootstrap/heroku.css" rel="stylesheet">
+    <!-- /// -->
+
+    <!--
+      IMPORTANT:
+      To do the replacement {{app-name}} for the real name application
+    -->
+    <script src="http://heroku.github.com/template-app-bootstrap/heroku.js"></script>
+    <!-- /// -->
+
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a href="/" class="brand">{{app-name}}</a>
+          <!--
+            IMPORTANT:
+            This is Heroku specific markup. Remove to customize.
+          -->
+          <a href="/" class="brand" id="heroku">by <strong>heroku</strong></a>
+          <!-- /// -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container" id="getting-started">
+      <div class="row">
+        <div class="span8 offset2">
+          <div class="page-header">
+           
+          </div>
+
+          <p>
+            You have successfully created a Java application on Heroku. Every Heroku app is backed by a private Git repository to track the changes to your application code. Below is information about your app, that you will require for subsequent steps:
+          </p>
+
+          <ul>
+            <li>App URL: <a href="/">http://{{app-name}}.herokuapp.com</a></li>
+            <li>Git Repository: <code>git@heroku.com:{{app-name}}.git</code></li>
+          </ul>
+
+          <hr>
+
+          <h2>1. Heroku SSH key setup</h2>
+
+          <p>
+            In order to deploy your changes to the Git repo you will need to commit your changes to this Git repository. Git requires a SSH key to commit or get latest changes from your Git repository.
+          </p>
+
+          <p>
+            If you don’t have an SSH key already then in Eclipse go to:
+          </p>
+
+          <ul>
+            <li><strong>Window</strong> menu &#8594; <strong>Preferences</strong></li>
+            <li>Search for <strong>SSH</strong></li>
+            <li>Select the <strong>SSH2</strong> preferences</li>
+            <li>Select the <strong>Key Management</strong> tab</li>
+            <li>Select <strong>Generate RSA Key...</strong> to create a new SSH key</li>
+            <li>Select <strong>Save Private Key...</strong></li>
+            <li>Select and copy the public key (starts with ssh-rsa)</li>
+          </ul>
+
+          <p>
+            If you have an SSH key then in the <strong>Kay Management</strong> tab select <strong>Load Existing Key...</strong> and copy the public key.
+          </p>
+
+          <p class="thumbnail">
+            <img src="images/1.png" alt="How to load an existing SSH Key">
+          </p>
+
+          <p>
+            Paste the SSH key generated above into the text area below and click on <strong>Upload SSH Key</strong>. This will associate your public key with your Heroku account.
+          </p>
+
+          <h2>2. Import the app into Eclipse</h2>
+
+          <p>
+            Now you are ready to import the created project into Eclipse. Select the <strong>File</strong> menu &#8594; <strong>Import</strong>, select <strong>Project from Git</strong>, select <strong>Clone...</strong>, paste <code>git@heroku.com:{{app-name}}.git</code> into the <strong>URI</strong> box and select <strong>Next</strong>.
+          </p>
+
+          <p class="thumbnail">
+            <img src="images/2.png" alt="How to import the app into Eclipse">
+          </p>
+
+          <p>
+            Eclipse will fetch the branches of the remote git repository and should display just a master branch. Select <strong>Next</strong> and then <strong>Finish</strong>. A local copy of the project will now be on your computer. Now select <strong>Next</strong>, select <strong>Import as general project</strong>, select <strong>Next</strong>, and then select <strong>Finish</strong> to complete the import. From here you can take a few other steps to setup the project for local development.
+          </p>
+
+          <hr>
+
+          <h2>3. Make a change</h2>
+
+          <p>
+            Make a change to the app that you will be able to see when the new version is pushed to Heroku. For instance, add something to the <code>index.jsp</code> file. If you have setup your Eclipse for local development then you should be able to test this change locally before pushing it to Heroku.
+          </p>
+
+          <h2>4. Deploy the change to Heroku</h2>
+
+          <p>
+            To commit the changes to the local git repository, right-click on the project, select <strong>Team</strong> &#8594; <strong>Commit...</strong>, enter a commit message, and select <strong>Commit</strong>.
+          </p>
+
+          <p class="thumbnail">
+            <img src="images/3.png" alt="Commit the changes to the local git repository">
+          </p>
+
+          <p>
+            Now that the changes are in the local git repository they can be pushed to Heroku. Right-click on the project, select
+            <strong>Team</strong> &#8594; <strong>Push to Upstream</strong>. This will send your change to Heroku and then Heroku will run the project's Maven build and redeploy the changes. When the process has completed you will see the details of the push and the Maven build.
+          </p>
+
+          <p class="thumbnail">
+            <img src="images/4.png" alt="Push your changes to Heroku">
+          </p>
+
+          <hr>
+
+          <h2>Next steps</h2>
+
+          <p>
+            Heroku allows you to have a high level of control over your application and manage it it a really easy way. You can look at your application logs, scale your Heroku processes, add <a href="http://addons.heroku.com">Add-ons</a> to your application and much, much more.
+          </p>
+
+          <p>
+            In order to manage and/or monitor your applicaiton, your will need to use the Heroku command line utility. You can download the <a href="http://toolbelt.heroku.com">Heroku Toolbelt</a> which includes the Heroku command line, Ruby and Git command line. To learn more about Heroku's command line interface click <a href="http://toolbelt.heroku.com">here</a>.
+          </p>
+
+          <p>
+            You can now repeate these steps aboive and continually deploy your application to Heroku. As you dive in further check out the <a href="http://devcenter.heroku.com">Heroku Dev Center</a> for a lot more details on using Java on Heroku.
+          </p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

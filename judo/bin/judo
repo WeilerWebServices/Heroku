@@ -1,0 +1,144 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+require File.dirname(__FILE__) + '/../lib/judo'
+require File.dirname(__FILE__) + '/../lib/judo/cli_helpers'
+
+include Judo::CLIHelpers
+
+options = Judo::Base.defaults
+
+ARGV.unshift "-h" if ARGV.size == 0
+
+optparse = OptionParser.new do|opts|
+  opts.banner = <<banner
+Usage: judo launch [options] SERVER ...
+       judo create [options] SERVER ...
+       judo destroy [options] SERVER ...
+
+       # SERVER can be formatted as NAME or NAME:GROUP or N:GROUP
+       # where N is the number of servers to create or launch
+       # 'launch' only differs from 'create' in that it immediately starts the server
+
+       judo start [options] [SERVER ...]
+       judo stop [options] [SERVER ...]
+       judo restart [options] [SERVER ...]
+
+       judo commit [options] GROUP
+
+       judo snapshot [options] SERVER SNAPSHOT ## take an ebs snapshot of a server
+       judo snapshots [options] [SERVER ...]   ## show current snapshots on servers
+       judo animate [options] SNAPSHOT SERVER    ## create a new server from a snapshot
+       judo erase [options] SNAPSHOT           ## erase an old snapshot
+
+       judo swap [options] SERVER SERVER     ## swap elastic IP's and names on the two servers
+
+       judo watch [options] SERVER         ## watch the server's boot process
+       judo info [options] [SERVER ...]
+       judo console [options] [SERVER ...] ## shows AWS console output
+       judo ssh [options] [SERVER ...]     ## ssh's into the server
+
+       # SERVER can be formatted as NAME or NAME:GROUP
+       # or :GROUP to indicate the whole group.
+       # If no servers are listed all servers are assumed.
+
+       judo list [options]    ## lists all servers
+       judo groups [options]  ## lists all groups
+
+       judo volumes [options] ## shows all EBS volumes and what they are attached to
+       judo ips [options]     ## shows all elastic ips and what they are attached to
+
+banner
+
+  opts.on( '-a', '--accessid ID', 'Specify the AWS access ID' ) do |id|
+    options[:access_id] = id
+  end
+  opts.on( '-s', '--secret KEY', 'Specify the AWS access secret key' ) do |key|
+    options[:access_secret] = key
+  end
+  opts.on( '-f', '--force', 'Force a stop or restart (immediately force detach volumes)' ) do
+    options[:force] = true
+  end
+  opts.on( '-t', '--type TYPE', 'Specify an instance type different from the config on server start' ) do |type|
+    options[:instance_type] = type
+  end
+  opts.on( '-D', '--data KEY=VALUE', 'Specify metadata to attach to a server at creation time' ) do |data|
+    key,value = data.split("=")
+    (options[:metadata] ||= {})[key] = value
+  end
+  opts.on( '-B', '--boot KEY=VALUE', 'Specify special boot parameters' ) do |data|
+    key,value = data.split("=")
+    (options[:boot] ||= {})[key] = value
+  end
+  opts.on( '-i', '--ip IP', 'Specify an exsiting elastic_ip address on server creation' ) do |ip|
+    options[:elastic_ip] = ip
+  end
+  opts.on( '-v', '--version VERSION', 'Update the servers config version on create/start/launch' ) do |version|
+    options[:version] = version
+  end
+  opts.on( '-h', '--help', 'Display this screen' ) do
+    puts opts
+    exit
+  end
+end
+
+optparse.parse!
+
+action = ARGV.shift
+judo = Judo::Base.new(options)
+judo.ensure_setup unless action == "generate"
+
+begin
+  case action
+    when "generate"  then do_generate(judo, ARGV)
+	  when "commit"    then do_commit(judo, ARGV)
+    when "ips"       then do_ips(judo)
+    when "volumes"   then do_volumes(judo)
+    when "list"      then do_list(judo, ARGV)
+    when "groups"    then do_groups(judo)
+	  when "snapshots" then do_snapshots(judo, ARGV)
+    when "watch"     then each_server(judo, ARGV) { |s| s.ssh_command("tail -n 1000 -f /var/log/kuzushi.log") }
+    when "info"      then each_server(judo, ARGV) { |s| do_info(judo, s) }
+    when "console"   then each_server(judo, ARGV) { |s| puts s.console_output }
+    when "ssh"       then each_server(judo, ARGV) { |s| s.connect_ssh }
+    when "start"     then each_server(judo, ARGV) { |s| s.start(options) }
+    when "restart"   then each_server(judo, ARGV) { |s| s.restart(options) }
+    when "stop"      then each_server(judo, ARGV) { |s| s.stop(options) }
+    when "create"    then mk_servers(judo, options, ARGV, false)
+    when "launch"    then mk_servers(judo, options, ARGV, true)
+    when "rename" then
+      raise JudoError, "usage: judo rename SERVER SERVER" unless ARGV.size == 2
+      server = judo.find_server(ARGV[0]).rename(ARGV[1])
+    when "swap" then
+      raise JudoError, "usage: judo swap SERVER SERVER" unless ARGV.size == 2
+      server1 = judo.find_server(ARGV[0])
+      server2 = judo.find_server(ARGV[1])
+      server1.swap(server2)
+    when "erase" then
+      raise JudoError, "usage: judo erase SNAPSHOT" unless ARGV.size == 1
+      snapshot_name = ARGV.shift
+      judo.snapshots.select { |s| s.name == snapshot_name }.each { |s| s.destroy }
+    when "snapshot" then
+      raise JudoError, "usage: judo snapshot SERVER SNAPSHOT" unless ARGV.size == 2
+      server_name = ARGV.shift
+      snapshot_name = ARGV.shift
+      judo.find_server(server_name).snapshot(snapshot_name)
+    when "animate" then
+      snapshot_name = ARGV.shift
+      raise JudoError, "You must specify a snapshot name" unless snapshot_name
+      new_server = ARGV.shift
+      raise JudoError, "You must specify a new server name" unless new_server
+      snapshot = judo.snapshots.detect { |s| s.name == snapshot_name }
+      raise JudoError, "No such snapshot #{snapshot_name}" unless snapshot
+      snapshot.animate(new_server).start(options)
+    when "destroy" then
+      raise JudoError, "usage: judo destroy SERVERS" if ARGV.empty?
+      raise JudoError, "You cannot destroy :all" if ARGV.include?(":all")
+      each_server(judo, ARGV) { |i| i.destroy }
+    else
+      raise JudoError, "No such action #{action}"
+  end
+rescue JudoError => e
+  puts "Error: #{e.message}"
+  exit 1
+end

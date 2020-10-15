@@ -1,0 +1,4 @@
+
+require:
+    - play
+    - play -> rabbitmq 0.2

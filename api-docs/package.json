@@ -1,0 +1,21 @@
+{
+  "name":        "api-docs",
+  "version":     "0.0.0",
+  "description": "Heroku API Documentation",
+  "author":      "Heroku",
+
+  "dependencies": {
+    "coffee-script": "1.2.x",
+    "express":       "2.5.x",
+    "jade":          "0.20.x",
+    "nodemon":       "0.6.x",
+    "restler":       "0.2.x",
+    "sass":          "0.5.x",
+    "yamlparser":    "0.0.2",
+    "yaml":          "0.2.x"
+  },
+  "engines": {
+    "node": "6.7.x",
+    "npm":  "3.10.x"
+  }
+}

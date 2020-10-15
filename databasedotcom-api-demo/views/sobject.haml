@@ -1,0 +1,14 @@
+.title
+  %h2== #{@sobject} (#{@names_or_ids.total_size} records)
+  %a{:href => "/sobject/#{params[:type]}/new"}== Create a new #{params[:type]}
+.page
+  .records
+    %ul
+      - while true
+        - @names_or_ids.each do |record|
+          %li
+            .sobject_record
+              %a{:href => "/sobject/#{@sobject}/#{record.Id}"}
+                = record.Name rescue record.Id
+        - break unless @names_or_ids.next_page?
+        - @names_or_ids = @names_or_ids.next_page

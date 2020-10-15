@@ -1,0 +1,12 @@
+env:
+  global:
+  - HEROKU_TEST_APP_NAME="heroku-deploy-plugin-test"
+  - secure: NsG0Df1YnzTOVOORO7WNpGYnR2am0byrpvwwsB3grxvcpgsO0vOYaZER3pgUnVA6gbuMZZxR5thRW0SiX4e0v6B8ELv50f7q7qwbnT02W2j125I6Dwm/AtNdYfVBy8MZw+bzCQl4eshfQTfn8DEHkobXjUhJJ3T85PJUIrP1OAE=
+language: ruby
+rvm:
+- 2.2.3
+install:
+- "./etc/travis-setup.sh"
+- bundle install
+script: bundle exec rspec
+after_script: heroku keys:remove $USER@`hostname`

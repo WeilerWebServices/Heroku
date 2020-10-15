@@ -1,0 +1,74 @@
+---
+title: "Config"
+endpoints:
+  - endpoint:
+      action: GET /apps/:app/config_vars
+      text: List config vars for an app
+      params:
+        - name: app
+          text: the app name
+          required: true
+      response:
+        json: |
+          HTTP/1.1 200 OK
+          {
+          \t"KEY1": "value1",
+          \t"KEY2": "value2"
+          }
+        xml: |
+          HTTP/1.1 200 OK
+          <?xml version="1.0" encoding="UTF-8"?>
+          <config_vars>
+          \t<config_var name="KEY1">value1</config_var>
+          \t<config_var name="KEY2">value2</config_var>
+          </config_vars>
+  - endpoint:
+      action: PUT /apps/:app/config_vars
+      text: Add config vars to an app
+      params:
+        - name: app
+          text: the app name
+          required: true
+        - name: body
+          text: the new config vars (as a JSON hash)
+          required: true
+      response:
+        json: |
+          HTTP/1.1 200 OK
+          {
+          \t"KEY1": "value1",
+          \t"KEY2": "value2",
+          \t"KEY3": "newvalue"
+          }
+        xml: |
+          HTTP/1.1 200 OK
+          <?xml version="1.0" encoding="UTF-8"?>
+          <config_vars>
+          \t<config_var name="KEY1">value1</config_var>
+          \t<config_var name="KEY2">value2</config_var>
+          \t<config_var name="KEY3">value3</config_var>
+          </config_vars>
+  - endpoint:
+      action: DELETE /apps/:app/config_vars/:key
+      text: Remove a config var from an app
+      params:
+        - name: app
+          text: the app name
+          required: true
+        - name: key
+          text: the config var to remove
+          required: true
+      response:
+        json: |
+          HTTP/1.1 200 OK
+          {
+          \t"KEY1": "remaining",
+          \t"KEY2": "vars"
+          }
+        xml: |
+          HTTP/1.1 200 OK
+          <?xml version="1.0" encoding="UTF-8"?>
+          <config_vars>
+          \t<config_var name="KEY1">remaining</config_var>
+          \t<config_var name="KEY2">vars</config_var>
+          </config_vars>

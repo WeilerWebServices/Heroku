@@ -1,0 +1,41 @@
+- doc.endpoints.forEach(function(endpoint) {
+  - endpoint = endpoint.endpoint
+
+  a(name=anchor(endpoint))
+  div.endpoint
+    h4
+      input.execute(type="button", value="Execute")
+      .status.spinner
+        img(src="/spinner.gif")
+      .status.success
+        img(src="/success.png")
+      .status.error
+        img(src="/error.png")
+      span.action
+        = endpoint.action
+    div.text!= text_as_html(endpoint.text)
+    - if (endpoint.params)
+      div.params
+        - endpoint.params.forEach(function(param) {
+          - required_class = (param.required) ? 'required' : 'optional';
+            div.param(class=required_class)
+              div.name= param.name
+              div.input
+                input.param(name=param.name, type="text", size="10", value=param.value)
+              div.type(class=required_class)
+                = required_class
+              div.text!= text_as_html(param.text)
+        - })
+    input.sample.json(type="hidden", value=endpoint.response.json)
+    input.sample.xml(type="hidden", value=endpoint.response.xml)
+    div.web.request.http
+      h4 Request (HTTP)
+      textarea(readonly)
+    div.web.request.curl
+      h4 Request (curl)
+      textarea(readonly)
+    div.web.response
+      h4 Response
+      textarea(readonly)
+
+- })
